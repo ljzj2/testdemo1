@@ -334,7 +334,7 @@ void get(HWND h) {
 	D3D11_TEXTURE2D_DESC desc1{};
 	int o = 0;
 	while (true) {
-		hr = dxgiOutputDuplication->AcquireNextFrame(duration, &frame_info, &resource);
+		hr = dxgiOutputDuplication->AcquireNextFrame(300, &frame_info, &resource);
 		if (SUCCEEDED(hr)) {
 			ID3D11Texture2D* texture = NULL;
 			hr = resource->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&texture);
