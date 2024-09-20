@@ -13,6 +13,10 @@
 #include<dxgi1_2.h>
 
 
+#include<chrono>
+#include<thread>
+
+
 #pragma comment(lib,"mfplat.lib")
 #pragma comment(lib,"mfuuid.lib")
 #pragma comment(lib,"wmcodecdspuuid.lib")
@@ -327,15 +331,26 @@ void get(HWND h) {
 	LONGLONG sampleTime = 0;
 
 
+	D3D11_TEXTURE2D_DESC desc1{};
 	int o = 0;
 	while (true) {
-		hr = dxgiOutputDuplication->AcquireNextFrame(0, &frame_info, &resource);
+		hr = dxgiOutputDuplication->AcquireNextFrame(duration, &frame_info, &resource);
 		if (SUCCEEDED(hr)) {
 			ID3D11Texture2D* texture = NULL;
 			hr = resource->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&texture);
+			texture->GetDesc(&desc1);
+			ID3D11Texture2D* texture1 = NULL;
+			hr = device->CreateTexture2D(&desc1, NULL, &texture1);
+			if (SUCCEEDED(hr)) {
+				ctx->CopyResource(texture1, texture);
+			}
+			else {
+				continue;
+			}
+
 			if (SUCCEEDED(hr)) {
 				IDXGISurface* dxgiSurface = NULL;
-				hr = texture->QueryInterface(__uuidof(IDXGISurface), (void**)&dxgiSurface);
+				hr = texture1->QueryInterface(__uuidof(IDXGISurface), (void**)&dxgiSurface);
 				if (SUCCEEDED(hr)) {
 					IMFSample* sample = NULL;
 					hr = MFCreateSample(&sample);
@@ -384,10 +399,14 @@ void get(HWND h) {
 				}
 				texture->Release();
 				texture = NULL;
+				texture1->Release();
+				texture1 = NULL;
 			}
 			resource->Release();
 			resource = NULL;
 		}
 		dxgiOutputDuplication->ReleaseFrame();
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(333));
 	}
 }
