@@ -339,6 +339,8 @@ void get(HWND h) {
 			ID3D11Texture2D* texture = NULL;
 			hr = resource->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&texture);
 			texture->GetDesc(&desc1);
+			desc1.BindFlags = 0;
+			desc1.MiscFlags = 0;
 			ID3D11Texture2D* texture1 = NULL;
 			hr = device->CreateTexture2D(&desc1, NULL, &texture1);
 			if (SUCCEEDED(hr)) {
